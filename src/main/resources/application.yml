@@ -11,9 +11,10 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 15s
   config:
-    import: "optional:configserver:"
+    import: "" # When using Config Service, add "optional:configserver:"
   cloud:
     config:
+      enabled: false # When using Config Service, set to true
       uri: http://localhost:8888
       request-connect-timeout: 5000 # 5s
       request-read-timeout: 5000 # 5s
@@ -107,6 +108,31 @@ resilience4j:
       default:
         timeoutDuration: 5s
 
-#logging:
-#  level:
-#    io.github.resilience4j: DEBUG
+logging:
+  group:
+    circuitbreaker: io.github.resilience4j, org.springframework.cloud.circuitbreaker
+  level:
+    circuitbreaker: info
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
+
+info:
+  system: Polar Bookshop
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: configprops, env, gateway, health, heapdump, info, loggers, mappings, prometheus
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
